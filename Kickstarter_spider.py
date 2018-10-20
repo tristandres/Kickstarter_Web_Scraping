@@ -2,7 +2,7 @@ from scrapy import Spider, Request
 import numpy as np
 from scrapy.contrib.exporter import CsvItemExporter
 from Kickstarter.items import KickstarterItem
-from scrapy_splash import SplashRequest
+from scrapy_splash import SplashRequest #for more information on scrapy splash: https://blog.scrapinghub.com/2015/03/02/handling-javascript-in-scrapy-with-splash
 import re
 
 class KickstarterSpider(Spider):
