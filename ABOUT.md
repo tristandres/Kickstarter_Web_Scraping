@@ -14,3 +14,5 @@ Kickstarter3 is used as the data set for Analysis.IPYNB as my IP was banned afte
 The Kickstarter folder contains my python code for scraping Kickstarter's website.
 
 Project Kickstarter.IPYNB is used to clean and organize the data pulled via the scrapy spider in the Kickstarter folder.
+
+All other files are used to run the scrapy spider, Kickstarter_spider is the main file which contains the code for extracting data from Kickstarter's website.
