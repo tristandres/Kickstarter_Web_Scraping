@@ -5,16 +5,19 @@ from Kickstarter.items import KickstarterItem
 from scrapy_splash import SplashRequest #for more information on scrapy splash: https://blog.scrapinghub.com/2015/03/02/handling-javascript-in-scrapy-with-splash
 import re
 
+#Initiating spider class to crawl through Kickstarter's website.
 class KickstarterSpider(Spider):
 	name = 'Kickstarter_spider'
 	allowed_urls = ['https://www.kickstarter.com'] 
 	start_urls = ['https://www.kickstarter.com/discover/advanced?sort=end_date&seed=2565797&page=1']
+	#create a list of all of Kickstarter's subcategories (154) which were non-sequential or posessed a pattern.
 	all_ids = list([287,20,21,22,288,54,23,24,53,25,289,290,249,250,251,252,253,343,344,345,346,347,348,350,351,352,353,354,355,356,254,255,256,257,258,259,27,260,28,261,262,263,264,265,266,267,268,269,291,29,292,30,293,294,330,296,295,297,298,299,31,300,301,32,303,302,33,304,305,306,307,308,310,309,311,312,313,314,315,270,271,272,273,274,34,35,357,358,359,360,361,316,317,36,386,37,38,318,38,40,41,319,320,241,42,321,322,43,44,275,276,277,278,280,279,323,324,45,325,46,387,47,349,326,48,49,50,239,327,328,329,389,331,332,333,334,335,336,337,52,362,338,51,339,340,341,342,388,281,282,283,284,285,286])
+	#create a list of all 154 subcategories' urls:
 	all_urls = ['https://www.kickstarter.com/discover/advanced?category_id={}&sort=end_date&seed=2565588&page=1'.format(x) for x in all_ids]
+	#choose how many pages to run through for each subcategory, min = 1, max = 200:
 	all_pages = list(range(1,101))
-	all_pages = all_pages[0:3]
-	all_urls = all_urls[0:3]
 	total_urls = []
+	#create the final urls for selected pages of a subcategory:
 	for a in all_urls:
 		for b in all_pages:
 			total_urls += list([a[:-1] + str(b)])
@@ -22,13 +25,15 @@ class KickstarterSpider(Spider):
 	def start_requests(self):
 		for url in self.total_urls:
 			yield SplashRequest(url, self.parse, args = {'wait':0.5},)
-
+			
+	#there are 12 projects max / page so we loop through all pages in total_urls to obtain the url of each individual project:
 	def parse(self, response):
 		project_url = response.xpath('//a[@class="soft-black mb3"]/@href').extract()
 
 		for url in project_url[:2]:
 			yield SplashRequest(url, self.parse_projects, args = {'wait':0.5},)
-
+			
+	#for every given project URL, we extract the following information:
 	def parse_projects(self,response):
 		Location = response.xpath('//span[@class="ml1"]/text()').extract_first()
 		Nb_Comments = int(response.xpath('//*[@itemprop="Project[comments_count]"]/text()').extract_first())
@@ -68,7 +73,7 @@ class KickstarterSpider(Spider):
 		item['Rewards_Dollars'] = Rewards_Dollars
 		item['Nb_Updates'] = Nb_Updates
 		item['End_Date'] = End_Date
-
+	#certain information is on the update tab of each project page, so we have to loop through those as well for each project page.
 		for url in update:
 			yield SplashRequest(url, self.update_date, args = {'wait':0.5},)
 
